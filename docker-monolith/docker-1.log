@@ -1,0 +1,30 @@
+REPOSITORY                           TAG       IMAGE ID       CREATED         SIZE
+rasdark/ubuntu-tmp-file              latest    8b1723640c16   4 minutes ago   63.2MB
+quay.io/minio/minio                  latest    3401906f8e03   3 months ago    227MB
+test                                 latest    3ec43964af4c   3 months ago    195MB
+pdns                                 latest    507d40547f06   3 months ago    169MB
+ngoduykhanh/powerdns-admin           latest    53db36e66491   3 months ago    153MB
+molecule_local/consul                latest    704fd504c14a   4 months ago    194MB
+molecule_local/oraclelinux           8.5       df48e3b50195   4 months ago    717MB
+consul                               latest    2c23bf1f6110   4 months ago    118MB
+ghcr.io/oracle/oraclelinux8-python   3.9       dca1ddedcd61   4 months ago    314MB
+oraclelinux                          8.5       e6ca9618a97b   4 months ago    235MB
+debian                               latest    d69c6cd3a20d   4 months ago    124MB
+geerlingguy/docker-centos8-ansible   latest    640f97c7b974   6 months ago    951MB
+ubuntu                               20.04     54c9d81cbb44   6 months ago    72.8MB
+ubuntu                               18.04     dcf4d4bef137   6 months ago    63.2MB
+hello-world                          latest    feb5d9fea6a5   10 months ago   13.3kB
+centos                               8         5d0da3dc9764   10 months ago   231MB
+
+
+В образе содержится информация о слоях (каждая команда в Dockerfile - слой). Слои доступны только на
+чтение.
+
+В контейнере содержится "верхний" слой, доступный на запись, в котором содержатся всякие
+"уникальные" данные (индентификатор, имя), а так же различные настройки, например, настройки сети,
+подключаемых томов, лимиты ресурсов..
+
+Другими словами, контейнер есть РАБОТАЮЩИЙ экземпляр образа =)
+
+При удалении контейнера удаляется "верхний" слой, доступный для записи, сам образ не удаляется.
+
