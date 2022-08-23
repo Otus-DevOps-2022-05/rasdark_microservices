@@ -2,6 +2,33 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №14
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ: docker-compose.override
+
+## В процессе сделано
+
+- Разобрался с работой сетей в докере
+- Работа с docker-compose
+- docker-compose.override
+
+### Docker Compose
+
+Параметризация осуществляется путем создания из .env.example - .env с заполнением переменных.
+
+Имя проекта формируется из имени корневой папки для docker-compose.yml (src). Переопределить можно
+2мя способами:
+```
+docker-compose -p Имя-проекта up -d
+```
+Задание переменной COMPOSE_PROJECT_NAME в .env
+
+### Docker-compose.override
+
+Чтобы не тащить каталоги проекта на docker-host, сборку сделал на localhost.
+
+
 ## Выполнено ДЗ №13
 
 - [x] Основное ДЗ
