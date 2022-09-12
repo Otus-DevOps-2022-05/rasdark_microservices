@@ -1,0 +1,51 @@
+---
+- hosts: all
+  become: true
+  vars:
+    GITLAB_ROOT: "/srv/gitlab"
+    GITLAB_TOKEN: "GR1348941BHDrqFq_t8zrTJ2P3jsq"
+
+  tasks:
+    - name: Create runner container
+      community.docker.docker_container:
+        name: gitlab-runner
+        image: gitlab/gitlab-runner:latest
+        state: present
+        recreate: false
+        volumes:
+          - /srv/gitlabrunner/config:/etc/gitlab-runner
+          - /var/run/docker.sock:/var/run/docker.sock
+
+    - name: Start runner
+      community.docker.docker_container:
+        name: gitlab-runner
+        state: started
+        restart: false
+
+    - name: Register Runner
+      community.docker.docker_container_exec:
+        container: gitlab-runner
+        argv:
+          - gitlab-runner
+          - "register"
+          - "--url"
+          - "http://{{ ansible_host }}/"
+          - "--non-interactive"
+          - "--locked=false"
+          - "--name"
+          - "DockerRunner"
+          - "--executor"
+          - "docker"
+          - "--docker-image"
+          - "alpine:latest"
+          - "--registration-token"
+          - "{{ GITLAB_TOKEN }}"
+          - "--run-untagged"
+          - "--tag-list"
+          - "\"linux,xenial,ubuntu,docker\""
+        chdir: /srv
+      register: result
+
+    - name: Debug stderr
+      debug:
+        var: result.stderr_lines
