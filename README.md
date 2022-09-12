@@ -2,6 +2,63 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №15
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ
+
+## В процессе сделано
+
+- Все по методичке
+
+## Возникшие проблемы
+
+В процессе работы возникла только одна проблема: не хватка памяти при запуске теста в раннере.
+Решение: пересоздать инстанс в облаке с 8Гб ОЗУ.
+
+## Как проверить
+
+Создаем инстанс
+
+```bash
+yc compute instance create   --name gitlab-host   --memory=8   --zone ru-central1-a   --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4   --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1804-lts,size=50   --ssh-key ~/.ssh/appuser.pub
+```
+
+Правим инвентори
+
+Разворачиваем GitLab
+
+```bash
+cd gitlab-ci/ansible && ansible-playbook gitlab_prepare.yml
+```
+
+Ждём пару-тройку минут. Идём по урлу http://внешний_адрес_инстанса - ГитЛаб работает.
+
+Ищём рутовй пароль гитлаба, вариантов несколько, самый простой, в лоб:
+
+```bash
+ssh -i ~/.ssh/appuser yc-user@178.154.203.135 sudo grep -i "password:" /srv/gitlab/config/initial_root_password
+```
+
+Логинимся в гитлаб, отключаем регистрацию, ищем токен регистрации раннера.
+
+Создаём контейнер с раннером и регистрируем в гитлабе.
+
+```bash
+ansible-playbook -e 'GITLAB_TOKEN="GR1348941BHDrqFq_t8zrTJ2P3jsq"' gitlab_runner.yml
+```
+
+![runner](./gitlab-ci/images/runner.png)
+
+Сразу добавляем интеграцию со слак: зовём webhook integration, получаем вебхук урл, вгоняем в настройки в гитлаб интегрейшен, жмякаем кнопки на что тригерриться гитлабу, сохраняем.
+
+Работу моего веб-хука посмотреть можно тут: [C03KQ35UW4A](https://devops-team-otus.slack.com/archives/)
+
+![ci-1](./gitlab-ci/images/ci-1.png)
+![ci-3](./gitlab-ci/images/ci-3.png)
+![envs](./gitlab-ci/images/envs.png)
+
+
 ## Выполнено ДЗ №14
 
 - [x] Основное ДЗ
