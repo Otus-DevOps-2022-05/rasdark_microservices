@@ -1,0 +1,66 @@
+---
+- hosts: all
+  become: true
+  vars:
+    GITLAB_ROOT: "/srv/gitlab"
+
+  tasks:
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - gnupg
+        - lsb-release
+        - python3-pip
+        - python3-setuptools
+        - python3-venv
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name={{ item }} state=latest
+      with_items:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-compose
+
+    - name: Install Docker Module for Python
+      pip:
+        name:
+          - docker
+          - docker-compose
+
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ GITLAB_ROOT }}/config"
+        - "{{ GITLAB_ROOT }}/data"
+        - "{{ GITLAB_ROOT }}/logs"
+
+    - name: Generate compose.yml
+      template:
+        src: compose.yml.j2
+        dest: "{{ GITLAB_ROOT }}/docker-compose.yml"
+
+    - name: Create and start gitlab
+      docker_compose:
+        project_src: "{{ GITLAB_ROOT }}"
+        build: false
+      register: output
+
+    - debug:
+        var: output
