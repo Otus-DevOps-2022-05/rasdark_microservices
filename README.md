@@ -2,6 +2,42 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №16
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ
+
+## В процессе сделано
+
+- Всё по методичке
+- Все дополнительные задания
+
+## Как проверить
+
+Создаём инстанс
+
+```bash
+yc compute instance create   --name gitlab-host   --memory=8   --zone ru-central1-a   --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4   --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1804-lts,size=50   --ssh-key ~/.ssh/appuser.pub
+```
+
+Создаём докер-машин
+
+```bash
+docker-machine create   --driver generic   --generic-ip-address=51.250.10.50   --generic-ssh-user yc-user   --generic-ssh-key ~/.ssh/appuser   docker-host
+```
+
+Подключаемся
+
+```bash
+eval $(docker-machine env docker-host)
+```
+
+Собираем образы, пушим в хаб, запускаем докеры
+
+```bash
+cd monitoring && make
+```
+
 ## Выполнено ДЗ №15
 
 - [x] Основное ДЗ

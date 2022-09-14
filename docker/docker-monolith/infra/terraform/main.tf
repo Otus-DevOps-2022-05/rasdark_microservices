@@ -19,4 +19,3 @@ module "app" {
   instance_count  = var.instance_count
   depends_on      = [module.vpc.subnet_id]
 }
-
