@@ -2,6 +2,51 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №17
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ
+
+## В процессе сделано
+
+- Всё по методичке
+- Все дополнительные задания
+
+## Как проверить
+
+Создаём инстанс
+
+```bash
+yc compute instance create   --name logging   --memory=6   --zone ru-central1-a   --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4   --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1804-lts,size=15   --ssh-key ~/.ssh/appuser.pub
+```
+
+Создаём докер-машин
+
+```bash
+docker-machine create   --driver generic   --generic-ip-address=130.193.49.159   --generic-ssh-user yc-user   --generic-ssh-key ~/.ssh/appuser   logging
+```
+
+Подключаемся
+
+```bash
+eval $(docker-machine env docker-host)
+```
+
+Выполняем всё по методичке. Доходим удивительного опыта траблшутинга с помощью системы логирования и зипкина.
+
+Собираем образы контейнеров с багованным кодом, правим docker_build скрипт (тегируем bugged), поднимаем новые контейнеры с приложением.
+
+Идём на основную страничку - ок. Идём в любой пост - видим что описанная проблема реальна. Проваливаемся в зипкин и..
+
+![ci-1](./logging/images/logging-1.png)
+
+Видим реальную задержку, видим в каком контейнере (post), видим эндпоинт (/post) и зипкин спан нэйм (db_find_all_posts).
+
+Открываем основной код post-py (post_app.py), ищем по зипкин спан нейм, всматриваемся в код и видим, что какой-то молодец установил задержку в 3 сек с помощью sleep.
+
+Убираем строчку (или камментим), пересобираем образ контейнера post, поднимаем контейнер, пытаемся воспроизвести баг - а его больше нет =)
+
+
 ## Выполнено ДЗ №16
 
 - [x] Основное ДЗ
