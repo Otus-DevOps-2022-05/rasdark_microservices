@@ -4,6 +4,9 @@ rasdark microservices repository
 
 ## Выполнено ДЗ №17
 
+<details>
+  <summary>Решение</summary>
+
 - [x] Основное ДЗ
 - [x] Дополнительное ДЗ
 
@@ -40,14 +43,17 @@ eval $(docker-machine env docker-host)
 
 ![ci-1](./logging/images/logging-1.png)
 
-Видим реальную задержку, видим в каком контейнере (post), видим эндпоинт (/post) и зипкин спан нэйм (db_find_all_posts).
+Видим реальную задержку, видим в каком контейнере (post), видим эндпоинт (/post) и зипкин спан нэйм (db_find_single_post).
 
 Открываем основной код post-py (post_app.py), ищем по зипкин спан нейм, всматриваемся в код и видим, что какой-то молодец установил задержку в 3 сек с помощью sleep.
 
 Убираем строчку (или камментим), пересобираем образ контейнера post, поднимаем контейнер, пытаемся воспроизвести баг - а его больше нет =)
-
+</details>
 
 ## Выполнено ДЗ №16
+
+<details>
+  <summary>Решение</summary>
 
 - [x] Основное ДЗ
 - [x] Дополнительное ДЗ
@@ -62,7 +68,7 @@ eval $(docker-machine env docker-host)
 Создаём инстанс
 
 ```bash
-yc compute instance create   --name gitlab-host   --memory=8   --zone ru-central1-a   --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4   --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1804-lts,size=50   --ssh-key ~/.ssh/appuser.pub
+yc compute instance create   --name docker-host   --memory=8   --zone ru-central1-a   --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4   --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1804-lts,size=50   --ssh-key ~/.ssh/appuser.pub
 ```
 
 Создаём докер-машин
@@ -83,7 +89,12 @@ eval $(docker-machine env docker-host)
 cd monitoring && make
 ```
 
+</details>
+
 ## Выполнено ДЗ №15
+
+<details>
+  <summary>Решение</summary>
 
 - [x] Основное ДЗ
 - [x] Дополнительное ДЗ
@@ -139,8 +150,12 @@ ansible-playbook -e 'GITLAB_TOKEN="GR1348941BHDrqFq_t8zrTJ2P3jsq"' gitlab_runner
 ![ci-3](./gitlab-ci/images/ci-3.png)
 ![envs](./gitlab-ci/images/envs.png)
 
+</details>
 
 ## Выполнено ДЗ №14
+
+<details>
+  <summary>Решение</summary>
 
 - [x] Основное ДЗ
 - [x] Дополнительное ДЗ: docker-compose.override
@@ -157,17 +172,23 @@ ansible-playbook -e 'GITLAB_TOKEN="GR1348941BHDrqFq_t8zrTJ2P3jsq"' gitlab_runner
 
 Имя проекта формируется из имени корневой папки для docker-compose.yml (src). Переопределить можно
 2мя способами:
-```
+
+```bash
 docker-compose -p Имя-проекта up -d
 ```
+
 Задание переменной COMPOSE_PROJECT_NAME в .env
 
 ### Docker-compose.override
 
 Чтобы не тащить каталоги проекта на docker-host, сборку сделал на localhost.
 
+</details>
 
 ## Выполнено ДЗ №13
+
+<details>
+  <summary>Решение</summary>
 
 - [x] Основное ДЗ
 - [x] Дополнительное ДЗ: переопределение сетевых алиасов и запуск контейнеров с передачей переменных окружения
@@ -273,7 +294,12 @@ docker run -d --network=reddit -p 9292:9292 --env POST_SERVICE_HOST=my_post --en
 
 - Создание тома, подключение тома к контейнеру с монгой, проверка работы приложения в целом (с остановкой контейнера с базой)
 
+</details>
+
 ## Выполнено ДЗ №12
+
+<details>
+  <summary>Решение</summary>
 
 - [x] Основное ДЗ
 - [x] Дополнительное ДЗ: сказ о разнице между образом и контейнером
@@ -316,3 +342,4 @@ terraform apply
 cd ../ansible
 ansible-playbook playbooks/docker_run.yml
 ```
+</details>
