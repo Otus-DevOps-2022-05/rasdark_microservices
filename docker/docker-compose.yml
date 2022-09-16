@@ -1,55 +1,57 @@
 version: '3.3'
 services:
 
-  prometheus:
-    image: ${USER_NAME}/prometheus
-    ports:
-      - 9090:9090
-    volumes:
-      - prometheus_data:/prometheus
-    command:
-      # Передаем доп параметры вкомандной строке
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention=1d'  # Задаем время хранения метрик в 1 день
-    networks:
-      - front_net
-      - back_net
+  # prometheus:
+  #   image: ${USER_NAME}/prometheus
+  #   ports:
+  #     - 9090:9090
+  #   volumes:
+  #     - prometheus_data:/prometheus
+  #   command:
+  #     # Передаем доп параметры вкомандной строке
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--storage.tsdb.retention=1d'  # Задаем время хранения метрик в 1 день
+  #   networks:
+  #     - front_net
+  #     - back_net
 
-  node-exporter:
-    image: prom/node-exporter:v0.15.2
-    user: root
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
-    networks:
-      - front_net
-      - back_net
+  # node-exporter:
+  #   image: prom/node-exporter:v0.15.2
+  #   user: root
+  #   volumes:
+  #     - /proc:/host/proc:ro
+  #     - /sys:/host/sys:ro
+  #     - /:/rootfs:ro
+  #   command:
+  #     - '--path.procfs=/host/proc'
+  #     - '--path.sysfs=/host/sys'
+  #     - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+  #   networks:
+  #     - front_net
+  #     - back_net
 
-  blackbox-exporter:
-    image: ${USER_NAME}/blackbox-exporter
-    ports:
-      - 9115:9115
-    command:
-      - '--config.file=/etc/blackboxexporter/config.yml'
-    networks:
-      - back_net
-      - front_net
+  # blackbox-exporter:
+  #   image: ${USER_NAME}/blackbox-exporter
+  #   ports:
+  #     - 9115:9115
+  #   command:
+  #     - '--config.file=/etc/blackboxexporter/config.yml'
+  #   networks:
+  #     - back_net
+  #     - front_net
 
-  mongodb-exporter:
-    image: ${USER_NAME}/mongodb-exporter
-    environment:
-      MONGODB_URI: mongodb://post_db:27017
-    networks:
-      - back_net
+  # mongodb-exporter:
+  #   image: ${USER_NAME}/mongodb-exporter
+  #   environment:
+  #     MONGODB_URI: mongodb://post_db:27017
+  #   networks:
+  #     - back_net
 
   post_db:
     image: mongo:${MONGO_VERSION}
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     volumes:
       - post_db:/data/db
     networks:
@@ -61,31 +63,54 @@ services:
   ui:
     # build: ./ui
     # image: ${USERNAME}/ui:${UI_TAG}
-    image: ${USER_NAME}/ui
+    image: ${USER_NAME}/ui:logging
+    # image: ${USER_NAME}/ui:bugged
+    environment:
+      # - POST_SERVICE_HOST=post
+      # - POST_SERVICE_PORT=5000
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     ports:
       - ${UI_HOST_PORT}:${UI_CONTAINER_PORT}/tcp
     networks:
       - front_net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.ui
 
   post:
     # build: ./post-py
     # image: ${USERNAME}/post:${POST_TAG}
-    image: ${USER_NAME}/post
+    image: ${USER_NAME}/post:logging
+    # image: ${USER_NAME}/post:bugged
+    environment:
+      # - POST_DATABASE_HOST=post_db
+      # - POST_DATABASE=posts
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
       - front_net
       - back_net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
 
   comment:
     # build: ./comment
     # image: ${USERNAME}/comment:${COMMENT_TAG}
-    image: ${USER_NAME}/comment
+    image: ${USER_NAME}/comment:logging
+    # image: ${USER_NAME}/comment:bugged
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
       - front_net
       - back_net
 
 volumes:
   post_db:
-  prometheus_data:
+  # prometheus_data:
 
 networks:
   back_net:
