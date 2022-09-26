@@ -1,0 +1,24 @@
+---
+- name: Install pre-required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ k8s_required_packages }}"
+
+- name: Add GPG key
+  apt_key:
+    url: "{{ k8s_signing_key }}"
+    state: present
+
+- name: Add Kubernetes Repository
+  apt_repository:
+    repo: "{{ k8s_repo }}"
+    state: present
+
+- name: Install Kubernetes packages
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    force: true
+  loop: "{{ k8s_packages }}"

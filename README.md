@@ -2,6 +2,42 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №18
+
+<details>
+  <summary>Решение</summary>
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ
+
+## В процессе сделано
+
+- Собран и исследован кубер-кластер "вручную"
+- Запущены недоделанные подики приложения
+- Дополнительное задание: разврачивание кубер-кластера terraform + ansible
+
+## Как проверить
+
+Развернуть кубер-кластер
+
+```bash
+cd kubernetes/terraform && terraform init && terraform apply
+```
+
+Подключиться к мастеру
+
+```bash
+ssh -i ~/.ssh/appuser ubuntu@178.154.205.54
+```
+
+Посмотреть список нод:
+
+```bash
+kubectl get nodes
+```
+
+</details>
+
 ## Выполнено ДЗ №17
 
 <details>
@@ -124,7 +160,7 @@ yc compute instance create   --name gitlab-host   --memory=8   --zone ru-central
 cd gitlab-ci/ansible && ansible-playbook gitlab_prepare.yml
 ```
 
-Ждём пару-тройку минут. Идём по урлу http://внешний_адрес_инстанса - ГитЛаб работает.
+Ждём пару-тройку минут. Идём по урлу <http://внешний_адрес_>инстанса - ГитЛаб работает.
 
 Ищём рутовй пароль гитлаба, вариантов несколько, самый простой, в лоб:
 
@@ -342,4 +378,5 @@ terraform apply
 cd ../ansible
 ansible-playbook playbooks/docker_run.yml
 ```
+
 </details>
