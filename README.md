@@ -2,6 +2,92 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №19
+
+<details>
+  <summary>Решение</summary>
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ
+
+## В процессе сделано
+
+- Разворачивание и использование minikube локально на Gentoo (docker, podman, qemu, virtualbox)
+- Деплой приложения reddit в локальный кубер
+- Знакомство с сервисом dashboard + описание манифестов для разворачивания в кубер кластер
+- Разворачивание Kubernetis Managed в Yandex.Cloud + описание с помощью terraform
+- Деплой приложения в кубер-кластер в яндекс облаке
+
+
+## Как проверить
+
+### Развернуть кластер и задеплоить приложение в Яндекс Облако
+
+Внимание, часть параметров terraform унесена в переменные окружения.
+
+```bash
+cd ./kubernetes/terraform2
+terraform init
+terraform apply
+
+yc managed-kubernetes cluster get-credentials k8s-dev --external
+kubectl apply -f ../reddit/dev-namespace.yml
+kubectl config current-context
+kubectl apply -n dev -f ../reddit/
+```
+
+Ожидаем пока поднимутся поды приложения:
+
+```bash
+watch -n1 kubectl get pods -n dev
+```
+
+Ищем адрес и порт приложения и подключаемся дабы проверить результат :)
+
+```bash
+kubectl get nodes -o wide
+kubectl describe service ui -n dev | grep NodePort
+```
+
+![ok](./kubernetes/img/yc-k8s-cluster-work.png)
+
+
+### Dashboard
+
+Идём по адресу: https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+
+Забираем файл по ссылке и добавляем в описание сервиса NodePort.
+
+Далее разворачиваем, получаем токен, подключаемся и проверяем.
+
+```bash
+cd kubernetes/dashboard
+kubectl apply -f dashboard.yml
+kubectl get deployments -n kubernetes-dashboard
+kubectl get services -n kubernetes-dashboard
+
+kubectl apply -f admin-sa.yml
+kubectl apply -f dashboard-admin.yml
+
+export ADMIN_NAME="kube-admin"
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep ${ADMIN_NAME} | awk '{print $1}')
+
+```
+
+Сохраняем токен в буфер обмена
+
+Запускаем прокси:
+
+```bash
+kubectl proxy
+```
+
+Переходим по ссылке: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+![dash](./kubernetes/img/yc-k8s-dashboard.png)
+
+</details>
+
 ## Выполнено ДЗ №18
 
 <details>
