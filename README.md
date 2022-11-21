@@ -2,6 +2,91 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №10
+
+<details>
+  <summary>Решение</summary>
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ
+
+## В процессе сделано
+
+- Осуществлены на практике разные способы доступа к приложению извне: NodePort, LoadBalancer, Ingress
+- Познакомился на практике с Ingress Controller
+- Познакомился на практике с SSL Терминацией в Ingress'ах
+- Как в ingress можно "спрятать" секреты (TLS сертификаты, ключи) (задание с ★)
+- Познакомился на практике с базовыми Network Policy
+- Познакомился на практике с "постоянным хранилищем" для сервисов БД
+
+## Как проверить
+
+### Развернуть кластер и задеплоить приложение в Яндекс Облако
+
+Внимание, часть параметров terraform унесена в переменные окружения.
+
+Развернуть кубер-кластер
+```bash
+cd ./kubernetes/terraform2
+terraform init
+terraform apply
+
+yc managed-kubernetes cluster get-credentials k8s-dev --external --force
+```
+
+Создать в Облаке ресурс диск, сохранить id, подставить в mongo-volume.yml
+
+```bash
+yc compute disk create  --name k8s-pvs  --zone ru-central1-a  --size 4  --description "disk for k8s"
+yc compute disk list | grep k8s-pvs | awk '{print $2}'
+sed -i 's/id-to-replace/fhm3ncj7icnc2a4amo6u/' ../reddit/mongo-volume.yml
+```
+
+Установить Ingress Controller
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+```
+
+Развернуть поды приложения
+
+```bash
+kubectl apply -f ../reddit/dev-namespace.yml
+kubectl apply -n dev -f ../reddit/
+```
+
+Ждём поды
+
+```bash
+watch -n1 kubectl get pods -n dev
+```
+
+Ждём публикацию ingress =)
+
+```bash
+kubectl get ingress -n dev
+```
+
+Подключаемся по https://address
+
+Скриншоты:
+
+Работа приложения через ingress c ssl termination
+![ok](./kubernetes/img/ssl-work.png)
+
+Persistent Storage после создания
+![ok](./kubernetes/img/pvs-02.png)
+
+Persistent Storage после пересоздания
+![ok](./kubernetes/img/pvs-03.png)
+
+
+### Удалить ресурсы
+
+```bash
+terraform destroy
+yc compute disk delete --name 'k8s-pvs'
+```
+
 ## Выполнено ДЗ №19
 
 <details>
