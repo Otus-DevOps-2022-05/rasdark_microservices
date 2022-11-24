@@ -26,7 +26,7 @@ spec:
         backend:
           serviceName: {{ template "fullname" . }}
           servicePort: 8005
-  - host: registry.{{ .Values.baseDomain }}
+  - host: {{ template "fullname" . }}
     http:
       paths:
       - path: /

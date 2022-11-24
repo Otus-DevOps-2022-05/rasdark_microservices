@@ -137,6 +137,22 @@ helm upgrade --install agent-reddit gitlab/gitlab-agent \
 
 Дополнительно в gitlabci/ перенесены все пайпы под именем gitlab-ci-\*.yaml
 
+Ход работы:
+
+![рабочий раннер](./kubernetes/img/01-install-runner-ok.png)
+
+![рабочий процесс](./kubernetes/img/02-work.png)
+
+![коммит в мастер микросервиса](./kubernetes/img/03-review-pipe.png)
+
+![ревью окружение](./kubernetes/img/04-review-env.png)
+
+![ревью приложение](./kubernetes/img/05-review-app.png)
+
+![выкатка на стейдж](./kubernetes/img/08-staging-env.png)
+
+![стейдж приложение](./kubernetes/img/09-staging-app.png)
+
 
 </details>
 
