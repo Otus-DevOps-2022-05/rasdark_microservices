@@ -15,7 +15,7 @@ variable cores {
 }
 variable memory {
   description = "VM memory"
-  default     = 8
+  default     = 16
 }
 variable disk {
   description = "Disk size"

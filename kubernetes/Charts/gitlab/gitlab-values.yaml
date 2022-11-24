@@ -1,0 +1,55 @@
+# Minimal settings
+global:
+  edition: ce
+  ingress:
+    configureCertmanager: true
+    class: "nginx"
+    enabled: true
+    tls:
+      enabled: true
+  hosts:
+    domain: 158.160.46.157.sslip.io
+    externalIP: 158.160.46.157
+    https: true
+  rails:
+    bootsnap:
+      enabled: false
+  shell:
+    port: 32022
+certmanager:
+  install: true
+  ingressShim:
+    defaultIssuerName: letsencrypt-prod
+    defaultIssuerKind: ClusterIssuer
+## Settings to for the Let's Encrypt ACME Issuer
+certmanager-issuer:
+  email: andrew.senik@gmail.com
+# Use the `ingress` addon, not our Ingress (can't map 22/80/443)
+nginx-ingress:
+  enabled: false
+prometheus:
+  install: false
+gitlab-exporter:
+  enabled: false
+gitlab-runner:
+  install: true
+  runners:
+    privileged: true
+# Reduce replica counts, reducing CPU & memory requirements
+gitlab:
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+  sidekiq:
+    minReplicas: 1
+    maxReplicas: 1
+  gitlab-shell:
+    minReplicas: 1
+    maxReplicas: 1
+    # service:
+    #   type: NodePort
+    #   nodePort: 32022
+registry:
+  hpa:
+    minReplicas: 1
+    maxReplicas: 1

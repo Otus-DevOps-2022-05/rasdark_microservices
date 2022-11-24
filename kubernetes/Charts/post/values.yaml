@@ -1,0 +1,12 @@
+---
+service:
+  internalPort: 5000
+  externalPort: 5000
+
+image:
+  repository: rasdark/post
+  tag: logging
+
+replicas: 1
+
+databaseHost:
