@@ -1,0 +1,18 @@
+---
+service:
+  internalPort: 9292
+  externalPort: 9292
+
+image:
+  repository: rasdark/ui
+  tag: logging
+
+replicas: 1
+
+ingress:
+  class: nginx
+
+postHost:
+postPort:
+commentHost:
+commentPort:

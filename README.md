@@ -2,6 +2,160 @@
 
 rasdark microservices repository
 
+## Выполнено ДЗ №21
+
+<details>
+  <summary>Решение</summary>
+
+- [x] Основное ДЗ
+- [x] Дополнительное ДЗ
+
+## В процессе сделано
+
+
+## Ход решения
+
+**ВНИМАНИЕ**: работа велась с helm3 чартами. Приложение отлажено с ними. CI, использующие helm2 - переделан не был (исправлены ошибки и autodevops).
+
+
+Развернули кубер-кластер и подкинули инфу о нем в локальный конфиг kubectl
+
+```
+cd ./kubernetes/terraform2
+terraform apply
+yc managed-kubernetes cluster get-credentials k8s-dev --external --force
+```
+
+Ингресс в облако
+
+```
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo up
+helm install ingress-nginx ingress-nginx/ingress-nginx
+```
+
+Подглядели за External-IP для ingress-nginx-controller c типом LoadBalancer, например тут
+```
+kubectl get services -n default -o wide ingress-nginx-controller
+```
+
+Редактим файл ./kubernetes/Charts/gitlab/gitlab-values.yaml:
+- в hosts.domain вписываем EXTERNAL_IP.sslip.io
+- в hosts.externalIP вписываем EXTERNAL_IP
+
+
+Раскатка гитлаба
+
+```
+helm repo add gitlab https://charts.gitlab.io/
+helm repo up
+helm install gitlab gitlab/gitlab --wait --timeout 700s -f ../Charts/gitlab/gitlab-values.yaml
+
+```
+
+Мониторим пока все поды поднимутся (в среднем 10-15 минут)
+
+```
+watch -n1 kubectl get pods
+```
+
+Получаем рутовый пароль
+
+```
+kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
+```
+
+Логинимся в https://gitlab.EXTERNAL_IP.sslip.io/ и... Ура =)
+
+Добавляем по методичке репозитории в группу.
+
+Настраиваем переменные: замена переменных из методички одной DOCKER_AUTH_CONFIG, где auth взять из локального ~/.docker/config.json
+
+```
+{
+    "auths": {
+        "https://index.docker.io": {
+            "auth": "...."
+        },
+        "https://index.docker.io/v1/": {
+            "auth": "..."
+        },
+        "https://index.docker.io/v2/": {
+            "auth": "..."
+        },
+        "index.docker.io/v1/": {
+            "auth": "..."
+        },
+        "index.docker.io/v2/": {
+            "auth": "..."
+        },
+        "docker.io/repo/myimage": {
+            "auth": "..."
+        }
+
+    }
+}
+```
+
+Чтобы посмотреть и отладить работу review и deploy стейджей, требуется интегрировать текущий кубер-кластер в гитлаб.
+
+Для нужно, например, в reddit-deploy создать .gitlab/agents/agent-reddit/config.yaml примерно с таким содержанием
+
+```
+gitops:
+  manifest_projects:
+  - id: 'rasdark/reddit-deploy'
+    paths:
+    - glob: 'manifests/**/*.{yaml,yml,json}'
+ci_access:
+  groups:
+  - id: rasdark
+```
+
+Закоммитить и запушить в мастер.
+
+Сходить в настройки проекта Infrastructure -> Kubernetes clusters, нажать там большую синюю кнопку Connect a cluster
+Выбрать в выпадающем списке agent-reddit и жмякнуть Register.
+
+Предложат установить gitlab-agent в кубер-кластер. Копипастим и выполняем примерно такой текст:
+
+```
+helm upgrade --install agent-reddit gitlab/gitlab-agent \
+    --namespace gitlab-agent \
+    --create-namespace \
+    --set image.tag=v15.6.0 \
+    --set config.token=6Y7RzKA_sw5kCFXmuotX4Wofsw_CFd-BCeQ3hDRFYq3GUBvNyA \
+    --set config.kasAddress=wss://kas.158.160.46.157.sslip.io
+```
+
+Готово. Можно отлаживать CI
+
+
+В итоге, полученные пайплайны разнесены в соответствующие директории src/.
+
+Пайплайн для reddit-deploy в корне Charts
+
+Дополнительно в gitlabci/ перенесены все пайпы под именем gitlab-ci-\*.yaml
+
+Ход работы:
+
+![рабочий раннер](./kubernetes/img/01-install-runner-ok.png)
+
+![рабочий процесс](./kubernetes/img/02-work.png)
+
+![коммит в мастер микросервиса](./kubernetes/img/03-review-pipe.png)
+
+![ревью окружение](./kubernetes/img/04-review-env.png)
+
+![ревью приложение](./kubernetes/img/05-review-app.png)
+
+![выкатка на стейдж](./kubernetes/img/08-staging-env.png)
+
+![стейдж приложение](./kubernetes/img/09-staging-app.png)
+
+
+</details>
+
 ## Выполнено ДЗ №20
 
 <details>
@@ -86,6 +240,7 @@ Persistent Storage после пересоздания
 terraform destroy
 yc compute disk delete --name 'k8s-pvs'
 ```
+</details>
 
 ## Выполнено ДЗ №19
 
